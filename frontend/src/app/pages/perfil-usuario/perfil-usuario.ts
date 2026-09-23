@@ -20,21 +20,19 @@ export class PerfilUsuario implements OnInit {
 
   constructor(
     private homeService: HomeService,
-    private usuarioService: UsuarioService,
+    public usuarioService: UsuarioService,
     private route: ActivatedRoute
   ) {}
 
   ngOnInit(): void {
+    this.usuarioService.carregarUsuarioLogado(1).subscribe();
 
     this.route.paramMap.subscribe(params => {
-
       const usuarioId = Number(params.get('id'));
 
       this.dadosPerfil(usuarioId);
       this.carregarLivroDoPerfil(usuarioId);
-
     });
-
   }
 
   dadosPerfil(usuarioId: number): void {

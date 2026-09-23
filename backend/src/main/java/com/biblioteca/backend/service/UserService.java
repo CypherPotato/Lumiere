@@ -1,13 +1,18 @@
 package com.biblioteca.backend.service;
-import com.biblioteca.backend.dto.LivroHomeDTO;
+
 import com.biblioteca.backend.dto.UsuarioDTO;
 import com.biblioteca.backend.model.Usuario;
-import org.springframework.beans.factory.annotation.Autowired;
 import com.biblioteca.backend.repository.UserRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
+import java.util.UUID;
 
 @Service
 public class UserService {
@@ -20,23 +25,20 @@ public class UserService {
     }
 
     public UsuarioDTO dadosUsuario(Long usuarioId) {
-
         Usuario usuario = userRepository.findById(usuarioId)
-                .orElseThrow();
+                .orElseThrow(() -> new RuntimeException("Usuário não encontrado!"));
 
         return new UsuarioDTO(
                 usuario.getId(),
                 usuario.getNomeUsuario(),
-                "http://localhost:8081/usuarios/" + usuario.getId() + "/foto",
-                usuario.getDescricaoUsuario()
+                usuario.getDescricaoUsuario(),
+                usuario.getFotoUsuario()
         );
     }
 
     public Usuario atualizarUsuario(long id, Usuario usuarioAtualizado) {
-
         Usuario usuarioExistente = userRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Usuario não encontrado!"));
-
+                .orElseThrow(() -> new RuntimeException("Usuário não encontrado!"));
 
         usuarioExistente.setNomeUsuario(usuarioAtualizado.getNomeUsuario());
         usuarioExistente.setDescricaoUsuario(usuarioAtualizado.getDescricaoUsuario());
@@ -44,29 +46,57 @@ public class UserService {
         return userRepository.save(usuarioExistente);
     }
 
-    public Usuario atualizarFoto(Long id, MultipartFile foto) {
-
-        Usuario usuarioExistente = userRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Usuario não encontrado!"));
-
-        try {
-            usuarioExistente.setFotoUsuario(foto.getBytes());
-        } catch (IOException e) {
-            throw new RuntimeException("Erro ao salvar a imagem!", e);
+    public UsuarioDTO atualizarFoto(Long id, MultipartFile arquivo) {
+        if (arquivo == null || arquivo.isEmpty()) {
+            throw new RuntimeException("Arquivo de foto não informado.");
         }
-
-        return userRepository.save(usuarioExistente);
-    }
-
-    public byte[] buscarFoto(Long id) {
 
         Usuario usuario = userRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Usuario não encontrado!"));
+                .orElseThrow(() -> new RuntimeException("Usuário não encontrado!"));
 
-        if (usuario.getFotoUsuario() == null) {
-            throw new RuntimeException("Usuário não possui foto!");
+        try {
+            // Pasta onde as fotos dos usuários serão armazenadas
+            Path pasta = Paths.get("uploads/usuarios").toAbsolutePath().normalize();
+            if (!Files.exists(pasta) && Files.exists(Paths.get("backend/uploads/usuarios"))) {
+                pasta = Paths.get("backend/uploads/usuarios").toAbsolutePath().normalize();
+            }
+
+            // Cria a pasta caso ela ainda não exista
+            Files.createDirectories(pasta);
+
+            // Remove a foto antiga se existir
+            if (usuario.getFotoUsuario() != null && !usuario.getFotoUsuario().isBlank()) {
+                Path fotoAntiga = pasta.resolve(usuario.getFotoUsuario());
+                Files.deleteIfExists(fotoAntiga);
+            }
+
+            // Obtém a extensão original (.png, .jpg, etc)
+            String originalName = arquivo.getOriginalFilename();
+            String extensao = "";
+            if (originalName != null && originalName.contains(".")) {
+                extensao = originalName.substring(originalName.lastIndexOf("."));
+            }
+
+            // Gera nome único para evitar colisão e problemas de caracteres
+            String nomeArquivo = UUID.randomUUID().toString() + extensao;
+            Path caminhoArquivo = pasta.resolve(nomeArquivo);
+
+            // Salva a imagem na pasta
+            Files.copy(arquivo.getInputStream(), caminhoArquivo, StandardCopyOption.REPLACE_EXISTING);
+
+            // Salva somente o nome da imagem no banco
+            usuario.setFotoUsuario(nomeArquivo);
+            userRepository.save(usuario);
+
+            return new UsuarioDTO(
+                    usuario.getId(),
+                    usuario.getNomeUsuario(),
+                    usuario.getDescricaoUsuario(),
+                    usuario.getFotoUsuario()
+            );
+
+        } catch (IOException e) {
+            throw new RuntimeException("Erro ao salvar a foto do usuário", e);
         }
-
-        return usuario.getFotoUsuario();
     }
 }

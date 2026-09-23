@@ -7,6 +7,7 @@ import { RouterModule } from '@angular/router';
 import { InteresseService } from '../../core/services/interesse.service'
 import {CriarInteresse} from'../../core/models/criarInteresse';
 import { HomeService } from '../../core/services/home.service';
+import { UsuarioService } from '../../core/services/usuario.service';
 
 @Component({
   selector: 'app-home',
@@ -24,13 +25,14 @@ export class Home implements OnInit {
   constructor(
     private livroService: LivroService,
     private interesseService: InteresseService,
-    private homeService: HomeService
+    private homeService: HomeService,
+    public usuarioService: UsuarioService
   ) {}
 
   ngOnInit(): void {
     this.carregarLivros();
     this.carregarMeusInteresses();
-    
+    this.usuarioService.carregarUsuarioLogado(1).subscribe();
   }
 
   carregarMeusInteresses(): void {

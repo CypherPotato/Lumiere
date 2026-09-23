@@ -2,7 +2,6 @@ package com.biblioteca.backend.controller;
 
 
 import com.biblioteca.backend.dto.LivroHomeDTO;
-import com.biblioteca.backend.model.Livro;
 import com.biblioteca.backend.service.HomeService;
 import org.springframework.web.bind.annotation.*;
 

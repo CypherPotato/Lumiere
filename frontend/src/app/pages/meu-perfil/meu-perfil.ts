@@ -12,28 +12,25 @@ import { UsuarioService } from '../../core/services/usuario.service';
   standalone: true,
   imports: [CommonModule, FormsModule, RouterModule],
   templateUrl: './meu-perfil.html',
-   styleUrl: './meu-perfil.css',
-
-})export class MeuPerfil implements OnInit {
+  styleUrl: './meu-perfil.css',
+})
+export class MeuPerfil implements OnInit {
 
   livros = signal<Livro[]>([]);
   perfil = signal<DadosUsuario | null>(null);
 
-  // Temporário: usuário logado
   usuarioId = 1;
-
   editando = false;
 
   dadosEdicao: DadosUsuario = {
     usuarioId: 0,
     nomeUsuario: '',
     descricaoUsuario: '',
-    fotoUsuario: ''
   };
 
   constructor(
     private homeService: HomeService,
-    private usuarioService: UsuarioService
+    public usuarioService: UsuarioService // Mudado para public para usar o getFotoUrl no HTML
   ) {}
 
   ngOnInit(): void {
@@ -42,115 +39,88 @@ import { UsuarioService } from '../../core/services/usuario.service';
   }
 
   dadosPerfil(): void {
-
-    this.usuarioService.buscarDadosUsuario(this.usuarioId).subscribe({
-
+    this.usuarioService.carregarUsuarioLogado(this.usuarioId).subscribe({
       next: (usuario) => {
-
         console.log('USUARIO:', usuario);
-
         this.perfil.set(usuario);
-
-        this.dadosEdicao = {
-          ...usuario
-        };
+        this.dadosEdicao = { ...usuario };
       },
-
       error: (erro) => {
         console.error('Erro ao buscar usuário:', erro);
       }
-
     });
   }
 
   carregarLivroDoPerfil(): void {
-
     this.homeService.listarTodos(this.usuarioId).subscribe({
-
       next: (dados) => {
         this.livros.set(dados);
       },
-
       error: (erro) => {
         console.error('Erro ao carregar livros:', erro);
       }
-
     });
   }
 
   iniciarEdicao(): void {
-
     const usuario = this.perfil();
-
-    if (!usuario) {
-      return;
-    }
-
-    this.dadosEdicao = {
-      ...usuario
-    };
-
+    if (!usuario) return;
+    this.dadosEdicao = { ...usuario };
     this.editando = true;
   }
 
   cancelarEdicao(): void {
-
     const usuario = this.perfil();
-
     if (usuario) {
-      this.dadosEdicao = {
-        ...usuario
-      };
+      this.dadosEdicao = { ...usuario };
     }
-
     this.editando = false;
   }
 
   salvarPerfil(): void {
-
     this.usuarioService
       .atualizarPerfil(this.usuarioId, this.dadosEdicao)
       .subscribe({
-
         next: (usuarioAtualizado) => {
-
           console.log('Perfil atualizado:', usuarioAtualizado);
-
-          this.perfil.set(usuarioAtualizado);
-
+          const atualizado: DadosUsuario = {
+            usuarioId: usuarioAtualizado.usuarioId ?? usuarioAtualizado.id ?? this.usuarioId,
+            id: usuarioAtualizado.id ?? usuarioAtualizado.usuarioId ?? this.usuarioId,
+            nomeUsuario: usuarioAtualizado.nomeUsuario,
+            descricaoUsuario: usuarioAtualizado.descricaoUsuario,
+            fotoUsuario: usuarioAtualizado.fotoUsuario ?? this.perfil()?.fotoUsuario
+          };
+          this.perfil.set(atualizado);
+          this.dadosEdicao = { ...atualizado };
           this.editando = false;
         },
-
         error: (erro) => {
-
           console.error('Erro ao atualizar perfil:', erro);
-
         }
-
       });
   }
 
-  selecionarFoto(event: any): void {
+  // Escuta o upload da imagem e atualiza estado
+  onFotoSelecionada(event: Event): void {
+    const input = event.target as HTMLInputElement;
 
-  const arquivo = event.target.files[0];
+    if (input.files && input.files.length > 0) {
+      const arquivo = input.files[0];
 
-  if (!arquivo) {
-    return;
+      this.usuarioService.atualizarFoto(this.usuarioId, arquivo).subscribe({
+        next: (usuarioAtualizado) => {
+          console.log('Foto atualizada com sucesso:', usuarioAtualizado);
+          this.perfil.set(usuarioAtualizado);
+          if (this.dadosEdicao) {
+            this.dadosEdicao.fotoUsuario = usuarioAtualizado.fotoUsuario;
+          }
+          input.value = '';
+        },
+        error: (erro) => {
+          console.error('Erro ao enviar a foto:', erro);
+          input.value = '';
+        }
+      });
+    }
   }
-
-  this.usuarioService.atualizarFoto(this.usuarioId, arquivo)
-    .subscribe({
-
-      next: () => {
-        console.log('Foto atualizada!');
-
-        this.dadosPerfil();
-      },
-
-      error: (erro) => {
-        console.error('Erro ao atualizar foto:', erro);
-      }
-
-    });
-}
 }

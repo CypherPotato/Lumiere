@@ -1,6 +1,7 @@
 export interface DadosUsuario {
-    usuarioId: number;
-    nomeUsuario: string;
-    fotoUsuario: string;
-    descricaoUsuario: string;
+  id?: number;
+  usuarioId?: number;
+  nomeUsuario: string;
+  descricaoUsuario: string;
+  fotoUsuario?: string | null;
 }

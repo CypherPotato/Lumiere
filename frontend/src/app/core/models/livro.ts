@@ -13,6 +13,6 @@ export interface Livro {
 
     usuarioId: number;
     nomeUsuario: string;
-    fotoUsuario: string;
+    fotoUsuario?: string | null;
     descricaoUsuario: string;
 }

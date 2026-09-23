@@ -3,7 +3,6 @@ package com.biblioteca.backend.model;
 import jakarta.persistence.*;
 import lombok.Data;
 
-import java.util.List;
 
 @Entity
 @Table(name = "usuarios")
@@ -16,11 +15,8 @@ public class Usuario {
     private String username;
     private String senha;
     private String nomeUsuario;
-
-    @Lob
-    @Column(name = "foto_usuario")
-    private byte[] fotoUsuario;
-
     private String descricaoUsuario;
+
+    private String fotoUsuario;
 
 }

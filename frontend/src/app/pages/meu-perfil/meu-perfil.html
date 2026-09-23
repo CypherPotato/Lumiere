@@ -1,3 +1,4 @@
+
 <div class="home-container">
 
   <!-- ================= NAVBAR ================= -->
@@ -9,7 +10,7 @@
 
         <div class="user-avatar-nav">
           <img
-            src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=200"
+            [src]="usuarioService.getFotoUrl(perfil()?.fotoUsuario, perfil()?.nomeUsuario)"
             alt="Foto de Perfil"
             [routerLink]="['/meu-perfil']"
           >
@@ -75,24 +76,24 @@
 
       <div class="perfil-avatar">
 
-  <img
-    [src]="perfil()?.fotoUsuario || 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400'"
-    alt="Foto do usuário"
-  >
+        <img
+          [src]="usuarioService.getFotoUrl(perfil()?.fotoUsuario, perfil()?.nomeUsuario)"
+          alt="Foto do usuário"
+        >
 
-  <label class="botao-editar-foto" title="Alterar foto">
-    ✏️
+        <label class="botao-editar-foto" title="Alterar foto">
+          ✏️
 
-    <input
-      type="file"
-      accept="image/*"
-      (change)="selecionarFoto($event)"
-      hidden
-    >
+          <input
+            type="file"
+            accept="image/png, image/jpeg, image/jpg, image/webp"
+            (change)="onFotoSelecionada($event)"
+            hidden
+          >
 
-  </label>
+        </label>
 
-</div>
+      </div>
 
 
       <!-- INFORMAÇÕES -->
@@ -107,22 +108,21 @@
 
           <!-- BOTÃO EDITAR -->
 
-            <button
+          <button
             class="btn-editar"
             type="button"
             title="Editar perfil"
             (click)="iniciarEdicao()"
-            >
+          >
             ✏️
-            </button>
+          </button>
 
         </div>
 
 
         <p class="descricao">
 
-          {{ perfil()?.descricaoUsuario ||
-          'Este usuário ainda não adicionou uma descrição.' }}
+          {{ perfil()?.descricaoUsuario || 'Este usuário ainda não adicionou uma descrição.' }}
 
         </p>
 
@@ -318,23 +318,23 @@
           <div class="foto-edicao">
 
             <img
-              [src]="dadosEdicao.fotoUsuario || 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400'"
+              [src]="usuarioService.getFotoUrl(perfil()?.fotoUsuario, perfil()?.nomeUsuario)"
               alt="Foto do usuário"
             >
 
-           <label class="btn-alterar-foto">
+            <label class="btn-alterar-foto">
 
-  <i class="fa-solid fa-camera"></i>
-  Alterar foto
+              <i class="fa-solid fa-camera"></i>
+              Alterar foto
 
-  <input
-    type="file"
-    accept="image/*"
-    (change)="selecionarFoto($event)"
-    hidden
-  >
+              <input
+                type="file"
+                accept="image/png, image/jpeg, image/jpg, image/webp"
+                (change)="onFotoSelecionada($event)"
+                hidden
+              >
 
-</label>
+            </label>
 
           </div>
 

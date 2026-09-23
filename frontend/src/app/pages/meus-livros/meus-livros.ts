@@ -3,6 +3,7 @@ import { ChangeDetectorRef, Component, OnInit, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { LivroService } from '../../core/services/livro.service';
+import { UsuarioService } from '../../core/services/usuario.service';
 import { Livro } from '../../core/models/livro';
 import { CadastroLivro } from '../meus-livros/cadastro-livro/cadastro-livro';
 
@@ -22,12 +23,13 @@ livroSelecionado?: Livro;
 constructor(
   private livroService: LivroService,
   private cdr: ChangeDetectorRef,
-
+  public usuarioService: UsuarioService
 ) {}
 
   ngOnInit(): void {
     // Chama a função assim que a tela carrega
     this.carregarLivrosDoUsuario();
+    this.usuarioService.carregarUsuarioLogado(1).subscribe();
   }
 
   carregarLivrosDoUsuario(): void {

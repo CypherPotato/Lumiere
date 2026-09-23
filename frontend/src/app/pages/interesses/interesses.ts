@@ -1,7 +1,8 @@
 import { CommonModule } from '@angular/common';
 import { ChangeDetectorRef, Component, OnInit} from '@angular/core';
 import { InteresseService } from '../../core/services/interesse.service';
-import {Interesse } from '../../core/models/interesse.ts'
+import { UsuarioService } from '../../core/services/usuario.service';
+import { Interesse } from '../../core/models/interesse.ts';
 import { RouterModule } from '@angular/router';
 
 @Component({
@@ -16,12 +17,13 @@ export class Interesses implements OnInit{
 
   constructor(
     private interesseService: InteresseService,
-     private cdr: ChangeDetectorRef,
+    private cdr: ChangeDetectorRef,
+    public usuarioService: UsuarioService
   ) {}
-
 
   ngOnInit(): void {
     this.carregarInteresses();
+    this.usuarioService.carregarUsuarioLogado(1).subscribe();
   }
 
   carregarInteresses(): void {

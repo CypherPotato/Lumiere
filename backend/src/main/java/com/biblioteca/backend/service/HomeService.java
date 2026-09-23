@@ -28,10 +28,10 @@ public class HomeService {
                         livro.isAtivo(),
                         livro.getTipoInteracao(),
                         livro.getGeneroLivro(),
-                        livro.getUsuario().getId(),
-                        livro.getUsuario().getNomeUsuario(),
-                        "http://localhost:8081/usuarios/" + livro.getUsuario().getId() + "/foto",
-                        livro.getUsuario().getDescricaoUsuario()
+                        livro.getUsuario() != null ? livro.getUsuario().getId() : null,
+                        livro.getUsuario() != null ? livro.getUsuario().getNomeUsuario() : null,
+                        livro.getUsuario() != null ? livro.getUsuario().getFotoUsuario() : null,
+                        livro.getUsuario() != null ? livro.getUsuario().getDescricaoUsuario() : null
                 ))
                 .toList();
     }

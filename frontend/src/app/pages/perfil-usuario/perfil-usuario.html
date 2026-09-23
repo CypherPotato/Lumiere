@@ -4,7 +4,11 @@
       
       <div class="nav-left-brand">
         <div class="user-avatar-nav">
-          <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=200" alt="Foto de Perfil">
+          <img
+            [src]="usuarioService.getFotoUrl(usuarioService.usuarioLogado()?.fotoUsuario, usuarioService.usuarioLogado()?.nomeUsuario)"
+            alt="Foto de Perfil"
+            [routerLink]="['/meu-perfil']"
+          >
         </div>
         <div class="logo">
           <span>LUMIERE</span>
@@ -31,7 +35,10 @@
   <div class="perfil-header">
 
     <div class="perfil-avatar">
-      <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400" alt="Foto do usuário">
+      <img
+        [src]="usuarioService.getFotoUrl(perfil()?.fotoUsuario, perfil()?.nomeUsuario)"
+        alt="Foto do usuário"
+      >
     </div>
 
     <div class="perfil-info">
