@@ -2,7 +2,6 @@ package com.biblioteca.backend.repository;
 
 
 import com.biblioteca.backend.model.Interesse;
-import com.biblioteca.backend.model.Livro;
 import com.biblioteca.backend.model.Usuario;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
