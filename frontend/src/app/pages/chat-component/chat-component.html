@@ -1,0 +1,29 @@
+  <nav class="navbar">
+    <div class="nav-content">
+      
+      <div class="nav-left-brand">
+        <div class="user-avatar-nav">
+          <img
+            [src]="usuarioService.getFotoUrl(usuarioService.usuarioLogado()?.fotoUsuario, usuarioService.usuarioLogado()?.nomeUsuario)"
+            alt="Foto de Perfil"
+            [routerLink]="['/meu-perfil']"
+          >
+        </div>
+        <div class="logo">
+          <span>LUMIERE</span>
+        </div>
+      </div>
+
+      <div class="nav-links">
+        <a routerLink="/home">Home</a>
+        <a routerLink="/meus-livros">Meus Livros</a>
+        <a routerLink="/interesses">Interesses</a>
+        <a [routerLink]="['/chats ']" class="active">Chats</a>
+      </div>
+
+      <div class="nav-actions">
+        <button class="btn-icon"><i class="fa-regular fa-bell"></i></button>
+      </div>
+
+    </div>
+  </nav>

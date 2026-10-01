@@ -6,6 +6,7 @@ import { MeusLivros } from './pages/meus-livros/meus-livros';
 import { Interesses } from './pages/interesses/interesses';
 import { PerfilUsuario } from './pages/perfil-usuario/perfil-usuario';
 import { MeuPerfil } from './pages/meu-perfil/meu-perfil';
+import { ChatComponent } from './pages/chat-component/chat-component';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'login', pathMatch: 'full' },
@@ -16,4 +17,5 @@ export const routes: Routes = [
   { path: 'interesses', component: Interesses },
   { path: 'perfil/:id', component: PerfilUsuario },
   { path: 'meu-perfil', component: MeuPerfil},
+  { path: 'chat', component: ChatComponent},
 ];

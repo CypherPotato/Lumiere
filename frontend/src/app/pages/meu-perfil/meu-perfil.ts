@@ -4,7 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { Livro } from '../../core/models/livro';
 import { DadosUsuario } from '../../core/models/dadosUsuario';
-import { HomeService } from '../../core/services/home.service';
+import { LivroService } from '../../core/services/livro.service';
 import { UsuarioService } from '../../core/services/usuario.service';
 
 @Component({
@@ -19,7 +19,7 @@ export class MeuPerfil implements OnInit {
   livros = signal<Livro[]>([]);
   perfil = signal<DadosUsuario | null>(null);
 
-  usuarioId = 1;
+  usuarioId = 0;
   editando = false;
 
   dadosEdicao: DadosUsuario = {
@@ -29,16 +29,20 @@ export class MeuPerfil implements OnInit {
   };
 
   constructor(
-    private homeService: HomeService,
+    private livroService: LivroService,
     public usuarioService: UsuarioService // Mudado para public para usar o getFotoUrl no HTML
   ) {}
 
   ngOnInit(): void {
-    this.dadosPerfil();
-    this.carregarLivroDoPerfil();
+    this.usuarioId = this.usuarioService.obterIdUsuarioLogado();
+    if (this.usuarioId) {
+      this.dadosPerfil();
+      this.carregarLivroDoPerfil();
+    }
   }
 
   dadosPerfil(): void {
+    if (!this.usuarioId) return;
     this.usuarioService.carregarUsuarioLogado(this.usuarioId).subscribe({
       next: (usuario) => {
         console.log('USUARIO:', usuario);
@@ -52,7 +56,8 @@ export class MeuPerfil implements OnInit {
   }
 
   carregarLivroDoPerfil(): void {
-    this.homeService.listarTodos(this.usuarioId).subscribe({
+    if (!this.usuarioId) return;
+    this.livroService.listarLivroId(this.usuarioId).subscribe({
       next: (dados) => {
         this.livros.set(dados);
       },

@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { Livro } from '../../../core/models/livro';
 import { LivroCadastrado } from '../../../core/models/livroCadastrado';
 import { LivroService } from '../../../core/services/livro.service';
+import { UsuarioService } from '../../../core/services/usuario.service';
 
 @Component({
   selector: 'app-cadastro-livro',
@@ -32,7 +33,10 @@ export class CadastroLivro implements OnInit {
     //imagemUrl: ''
   };
 
-  constructor(private livroService: LivroService) {}
+  constructor(
+    private livroService: LivroService,
+    private usuarioService: UsuarioService
+  ) {}
 
   ngOnInit(): void {
 
@@ -54,7 +58,11 @@ export class CadastroLivro implements OnInit {
 
   salvarLivro(): void {
 
-    const idUsuario = 1;
+    const idUsuario = this.usuarioService.obterIdUsuarioLogado();
+    if (!idUsuario) {
+      console.error('Usuário não autenticado');
+      return;
+    }
 
     this.livroService.criarLivro(idUsuario, this.novoLivro)
       .subscribe({

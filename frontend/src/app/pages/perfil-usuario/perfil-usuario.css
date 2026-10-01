@@ -358,3 +358,30 @@
 
 }
 
+/* Mensagem de nenhum livro disponível */
+.sem-livros {
+    grid-column: 1 / -1;
+    background: white;
+    border-radius: 20px;
+    padding: 50px 20px;
+    text-align: center;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+}
+
+.icone-livro {
+    font-size: 3rem;
+    color: #e5a93c;
+    margin-bottom: 15px;
+}
+
+.sem-livros h3 {
+    margin-bottom: 8px;
+    color: #1f2937;
+}
+
+.sem-livros p {
+    margin: 0;
+    color: #6b7280;
+}
+
+

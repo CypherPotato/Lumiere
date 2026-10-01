@@ -340,3 +340,16 @@ font-family: 'Cinzel', serif;
         margin-bottom: 32px;
     }
 }
+
+/* ==========================================
+   erro de login na tela 
+   ========================================== */
+.login-error {
+  margin-top: 10px;
+  padding: 10px;
+  border: 1px solid #dc3545;
+  border-radius: 6px;
+  color: #dc3545;
+  background-color: #fff5f5;
+  font-size: 14px;
+}

@@ -4,8 +4,7 @@ import { ActivatedRoute, RouterModule } from '@angular/router';
 import { Livro } from '../../core/models/livro';
 import { LivroService } from '../../core/services/livro.service';
 import { UsuarioService } from '../../core/services/usuario.service';
-import { DadosUsuario } from '../../core/models/dadosUsuario'
-import { HomeService } from '../../core/services/home.service';
+import { DadosUsuario } from '../../core/models/dadosUsuario';
 
 @Component({
   selector: 'app-perfil-usuario',
@@ -19,53 +18,52 @@ export class PerfilUsuario implements OnInit {
   perfil = signal<DadosUsuario | null>(null);
 
   constructor(
-    private homeService: HomeService,
+    private livroService: LivroService,
     public usuarioService: UsuarioService,
     private route: ActivatedRoute
   ) {}
 
   ngOnInit(): void {
-    this.usuarioService.carregarUsuarioLogado(1).subscribe();
+    const idLogado = this.usuarioService.obterIdUsuarioLogado();
+    if (idLogado) {
+      this.usuarioService.carregarUsuarioLogado(idLogado).subscribe();
+    }
 
     this.route.paramMap.subscribe(params => {
       const usuarioId = Number(params.get('id'));
 
-      this.dadosPerfil(usuarioId);
-      this.carregarLivroDoPerfil(usuarioId);
+      if (usuarioId) {
+        this.dadosPerfil(usuarioId);
+        this.carregarLivroDoPerfil(usuarioId);
+      }
     });
   }
 
   dadosPerfil(usuarioId: number): void {
+    if (!usuarioId) return;
 
     this.usuarioService.buscarDadosUsuario(usuarioId).subscribe({
-
       next: (usuario) => {
         console.log("USUARIO", usuario);
         this.perfil.set(usuario);
       },
-
       error: (erro) => {
         console.error(erro);
       }
-
     });
-
   }
 
   carregarLivroDoPerfil(usuarioId: number): void {
+    if (!usuarioId) return;
 
-    this.homeService.listarTodos(usuarioId).subscribe({
-
+    this.livroService.listarLivroId(usuarioId).subscribe({
       next: (dados) => {
         this.livros.set(dados);
       },
-
       error: (erro) => {
         console.error(erro);
       }
-
     });
-
   }
 
 }

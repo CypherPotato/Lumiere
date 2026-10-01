@@ -30,13 +30,19 @@ export class Home implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    this.carregarLivros();
-    this.carregarMeusInteresses();
-    this.usuarioService.carregarUsuarioLogado(1).subscribe();
+    const idUsuario = this.usuarioService.obterIdUsuarioLogado();
+    if (idUsuario) {
+      this.usuarioService.carregarUsuarioLogado(idUsuario).subscribe();
+    }
+    this.carregarLivros(idUsuario);
+    this.carregarMeusInteresses(idUsuario);
   }
 
-  carregarMeusInteresses(): void {
-    this.interesseService.listarInteressesEnviados(1)
+  carregarMeusInteresses(idUsuario?: number): void {
+    const id = idUsuario ?? this.usuarioService.obterIdUsuarioLogado();
+    if (!id) return;
+
+    this.interesseService.listarInteressesEnviados(id)
       .subscribe({
         next: (interesses) => {
           console.log('Interesses recebidos:', interesses);
@@ -53,9 +59,11 @@ export class Home implements OnInit {
       });
   }
 
-  carregarLivros(): void {
-     const idUsuario = 1;
-    this.homeService.listarTodos(idUsuario).subscribe({
+  carregarLivros(idUsuario?: number): void {
+    const id = idUsuario ?? this.usuarioService.obterIdUsuarioLogado();
+    if (!id) return;
+
+    this.homeService.listarTodos(id).subscribe({
       next: (dados) => {
         this.livros.set(dados);
         console.log("Dados:", dados)
@@ -103,10 +111,15 @@ buscarLivroGenero(): void {
 
 
 demonstrarInteresse(livro: Livro): void {
+  const idUsuario = this.usuarioService.obterIdUsuarioLogado();
+  if (!idUsuario) {
+    console.error('Usuário não autenticado');
+    return;
+  }
 
   if (this.temMatch(livro.id)) {
 
-      this.interesseService.cancelarInteresse(livro.id, 1)
+      this.interesseService.cancelarInteresse(livro.id, idUsuario)
       .subscribe(() => {
 
           const matches = new Set(this.matchIds());
@@ -120,7 +133,7 @@ demonstrarInteresse(livro: Livro): void {
 
   const interesse: CriarInteresse = {
     livro: { id: livro.id },
-    usuarioInteressado: { id: 1 }
+    usuarioInteressado: { id: idUsuario }
   };
 
   this.interesseService.criarInteresse(interesse)

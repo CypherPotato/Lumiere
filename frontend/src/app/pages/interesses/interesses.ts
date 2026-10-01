@@ -22,13 +22,19 @@ export class Interesses implements OnInit{
   ) {}
 
   ngOnInit(): void {
+    const idUsuario = this.usuarioService.obterIdUsuarioLogado();
+    if (idUsuario) {
+      this.usuarioService.carregarUsuarioLogado(idUsuario).subscribe();
+    }
     this.carregarInteresses();
-    this.usuarioService.carregarUsuarioLogado(1).subscribe();
   }
 
   carregarInteresses(): void {
 
-    const idUsuario = 1; // depois pegar do usuário logado
+    const idUsuario = this.usuarioService.obterIdUsuarioLogado();
+    if (!idUsuario) {
+      return;
+    }
 
     this.interesseService.listarInteressesRecebidos(idUsuario).subscribe({
     next: (dados) => {   

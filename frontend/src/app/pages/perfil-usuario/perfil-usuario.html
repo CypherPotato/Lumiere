@@ -19,7 +19,7 @@
         <a routerLink="/home">Home</a>
         <a [routerLink]="['/meus-livros']">Meus Livros</a>
         <a [routerLink]="['/interesses']">Interesses</a>
-        <a href="#">Empréstimos</a>
+        <a  [routerLink]="['/chat']">Chats</a>
       </div>
 
       <div class="nav-actions">
@@ -81,27 +81,41 @@
 
     <div class="grid-livros">
 
-        @for (livro of livros(); track livro.id) {
-      <div class="livro-card">
+      @for (livro of livros(); track livro.id) {
+        <div class="livro-card">
 
-        <div class="capa">
-          <img src="https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=400">
+          <div class="capa">
+            <img
+              [src]="livro.imagemUrl || 'https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=400'"
+              alt="Capa do livro"
+            >
+          </div>
+
+          <div class="conteudo">
+
+            <h3>{{ livro.titulo }}</h3>
+
+            <span>{{ livro.autor }}</span>
+
+            <p>{{ livro.generoLivro }}</p>
+
+            <button>Ver detalhes</button>
+
+          </div>
+
         </div>
+      }
 
-        <div class="conteudo">
-
-          <h3>{{ livro.titulo }}</h3>
-
-          <span>{{ livro.autor }}</span>
-
-          <p>{{ livro.generoLivro }}</p>
-
-          <button>Ver detalhes</button>
-
+      @if (livros().length === 0) {
+        <div class="sem-livros">
+          <div class="icone-livro">
+            <i class="fa-solid fa-book-open"></i>
+          </div>
+          <h3>Nenhum livro disponível</h3>
+          <p>Este usuário ainda não disponibilizou nenhum livro.</p>
         </div>
+      }
 
-      </div>
-    }
     </div>
 
   </div>

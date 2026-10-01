@@ -19,7 +19,7 @@
         <a routerLink="/home">Home</a>
         <a [routerLink]="['/meus-livros']" class="active">Meus Livros</a>
         <a routerLink="/interesses">Interesses</a>
-        <a href="#">Empréstimos</a>
+        <a  [routerLink]="['/chat']">Chats</a>
       </div>
 
       <div class="nav-actions">
@@ -42,7 +42,7 @@
               >
               <button class="btn-edit-avatar" title="Mudar foto" [routerLink]="['/meu-perfil']"><i class="fa-solid fa-camera"></i></button>
             </div>
-            <h2 class="cinzel-title user-name"> {{ meusLivros()[0]?.nomeUsuario }}</h2>
+            <h2 class="cinzel-title user-name"> {{ usuarioService.usuarioLogado()?.nomeUsuario || meusLivros()[0]?.nomeUsuario }}</h2>
             <p class="user-location"><i class="fa-solid fa-location-dot"></i> São Paulo, SP</p>
           </div>
 

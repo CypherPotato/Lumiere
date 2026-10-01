@@ -28,12 +28,18 @@ constructor(
 
   ngOnInit(): void {
     // Chama a função assim que a tela carrega
+    const idDoUsuarioLogado = this.usuarioService.obterIdUsuarioLogado();
+    if (idDoUsuarioLogado) {
+      this.usuarioService.carregarUsuarioLogado(idDoUsuarioLogado).subscribe();
+    }
     this.carregarLivrosDoUsuario();
-    this.usuarioService.carregarUsuarioLogado(1).subscribe();
   }
 
   carregarLivrosDoUsuario(): void {
-    const idDoUsuarioLogado = 1;
+    const idDoUsuarioLogado = this.usuarioService.obterIdUsuarioLogado();
+    if (!idDoUsuarioLogado) {
+      return;
+    }
 
     this.livroService.listarLivroId(idDoUsuarioLogado).subscribe({
       next: (dados) => {
