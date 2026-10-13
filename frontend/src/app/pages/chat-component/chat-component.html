@@ -1,3 +1,4 @@
+  <div class="home-container">
   <nav class="navbar">
     <div class="nav-content">
       
@@ -27,3 +28,211 @@
 
     </div>
   </nav>
+  </div>
+
+  
+<div class="chat-page">
+  <header class="chat-header">
+    <div class="header-title">
+      <span class="header-icon">✦</span>
+      <div>
+        <h1>Mensagens</h1>
+        <p>Compartilhe histórias, conecte leitores.</p>
+      </div>
+    </div>
+
+    <div class="header-actions">
+      <span class="connection-status"></span>
+      <span>Biblioteca Lumière</span>
+    </div>
+  </header>
+
+  <main class="chat-container">
+    <!-- Lista de conversas -->
+    <aside class="conversations-panel">
+      <div class="conversations-heading">
+        <h2>Conversas</h2>
+        <span class="conversation-count">2</span>
+      </div>
+
+      <div class="search-box">
+        <span class="search-icon">⌕</span>
+        <input
+          type="text"
+          placeholder="Buscar conversa..."
+          aria-label="Buscar conversa"
+        />
+      </div>
+
+      <div class="conversation-list">
+        <!-- Conversa 1 -->
+        <button class="conversation-item active">
+          <div class="avatar avatar-one">
+            J
+            <span class="online-indicator"></span>
+          </div>
+
+          <div class="conversation-info">
+            <div class="conversation-top">
+              <h3>Julia</h3>
+              <span class="message-time">09:32</span>
+            </div>
+
+            <p class="book-reference">O Pequeno Príncipe</p>
+
+            <div class="conversation-bottom">
+              <p class="last-message">
+                Perfeito! Podemos combinar assim.
+              </p>
+              <span class="unread-count">2</span>
+            </div>
+          </div>
+        </button>
+
+        <!-- Conversa 2 -->
+        <button class="conversation-item">
+          <div class="avatar avatar-two">Y</div>
+
+          <div class="conversation-info">
+            <div class="conversation-top">
+              <h3>Yuri</h3>
+              <span class="message-time">Ontem</span>
+            </div>
+
+            <p class="book-reference">O Assassinato no Expresso do Oriente</p>
+
+            <div class="conversation-bottom">
+              <p class="last-message">
+                Obrigado por aceitar a troca!
+              </p>
+            </div>
+          </div>
+        </button>
+      </div>
+
+      <div class="conversations-footer">
+        <span class="footer-star">✧</span>
+        <p>Cada livro merece uma nova história.</p>
+      </div>
+    </aside>
+
+    <!-- Área da conversa selecionada -->
+    <section class="message-panel">
+      <header class="message-header">
+        <div class="contact-info">
+          <div class="avatar avatar-one">
+            J
+            <span class="online-indicator"></span>
+          </div>
+
+          <div>
+            <h2>Julia</h2>
+            <p><span class="status-dot"></span> Online agora</p>
+          </div>
+        </div>
+
+        <button class="more-button" aria-label="Mais opções">
+          ⋮
+        </button>
+      </header>
+
+      <!-- Livro relacionado à conversa -->
+      <div class="book-banner">
+        <div class="book-cover">
+          <span>✦</span>
+        </div>
+
+        <div class="book-details">
+          <span class="book-label">INTERESSE EM COMUM</span>
+          <h3>Dom Casmurro</h3>
+          <p>Antoine de Saint-Exupéry</p>
+        </div>
+
+        <span class="exchange-status">Troca aceita</span>
+      </div>
+
+      <!-- Mensagens -->
+      <div class="messages-area">
+        <div class="date-divider">
+          <span>Hoje, 13 de outubro</span>
+        </div>
+
+        <div class="message received">
+          <div class="message-avatar avatar-one">M</div>
+
+          <div class="message-content">
+            <div class="message-bubble">
+              Oii! Vi que você aceitou minha proposta de troca do livro.
+              Fiquei muito feliz! 💛
+            </div>
+            <span class="message-time">09:24</span>
+          </div>
+        </div>
+
+        <div class="message sent">
+          <div class="message-content">
+            <div class="message-bubble">
+              Oii, Julia! Claro! Esse livro é muito especial para mim.
+              Espero que você goste tanto quanto eu! ✨
+            </div>
+            <span class="message-time">09:27 <span class="read-check">✓✓</span></span>
+          </div>
+        </div>
+
+        <div class="message received">
+          <div class="message-avatar avatar-one">M</div>
+
+          <div class="message-content">
+            <div class="message-bubble">
+              Com certeza! Podemos combinar a entrega na biblioteca
+              da faculdade? Acho que fica mais fácil para nós duas.
+            </div>
+            <span class="message-time">09:30</span>
+          </div>
+        </div>
+
+        <div class="message sent">
+          <div class="message-content">
+            <div class="message-bubble">
+              Perfeito! Podemos combinar assim. 😊
+            </div>
+            <span class="message-time">09:32 <span class="read-check">✓✓</span></span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Campo de envio -->
+      <form class="message-composer">
+        <button
+          type="button"
+          class="attachment-button"
+          aria-label="Anexar arquivo"
+        >
+          +
+        </button>
+
+        <input
+          type="text"
+          placeholder="Escreva uma mensagem..."
+          aria-label="Escreva uma mensagem"
+        />
+
+        <button
+          type="button"
+          class="emoji-button"
+          aria-label="Adicionar emoji"
+        >
+          ☺
+        </button>
+
+        <button
+          type="button"
+          class="send-button"
+          aria-label="Enviar mensagem"
+        >
+          <span>➤</span>
+        </button>
+      </form>
+    </section>
+  </main>
+</div>

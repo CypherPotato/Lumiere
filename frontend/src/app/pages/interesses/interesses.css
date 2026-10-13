@@ -123,7 +123,31 @@
     object-fit: cover;
 }
 
+.home-container {
+  position: relative;
+  isolation: isolate;
+  min-height: 100vh;
+  background-image: url('https://images.unsplash.com/photo-1437751068958-82e6fccc9360?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=NHwxMjA3fDA%3D');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+}
 
+.livros-background-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to bottom,
+    rgba(11, 17, 30, 0.50),
+    #0b111e
+  );
+  z-index: -1;
+}
+
+.interesses-container {
+  position: relative;
+}
 
 .interesses-container{
     max-width: 700px;

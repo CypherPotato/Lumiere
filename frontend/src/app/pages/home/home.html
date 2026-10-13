@@ -24,8 +24,7 @@
 
       <div class="nav-actions">
         <button class="btn-icon"><i class="fa-regular fa-bell"></i></button>
-        <button class="btn-profile">Entrar</button>
-        <button class="btn-cta">Cadastrar</button>
+        <button [routerLink]="['/login']" class="btn-cta">Sair</button>
       </div>
 
     </div>
@@ -41,11 +40,11 @@
         <div class="search-box">
           <i class="fa-solid fa-magnifying-glass"></i>
          <input
-    type="text"
-    placeholder="Qual livro você está procurando hoje?"
-    [(ngModel)]="textoBusca"
-    (input)="buscarLivroTexto()">
-        </div>
+      type="text"
+      placeholder="Qual livro você está procurando hoje?"
+      [(ngModel)]="textoBusca"
+      (input)="buscarLivroTexto()">
+          </div>
       </div>
 
       <div class="stats-bar">

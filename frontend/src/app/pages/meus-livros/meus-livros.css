@@ -6,8 +6,12 @@
     min-height: 100vh;
     font-family: 'Open Sans', sans-serif;
     color: #ffffff;
+    width: 100%;
+    min-height: 100vh;
 }
-
+body {
+  margin: 0;
+}
 .cinzel-title {
     font-family: 'Cinzel', serif;
     font-size: 32px;
@@ -134,9 +138,7 @@
     z-index: 2;
 }
 
-.profile-layout-adjustment {
-    margin-top: 20px !important;
-}
+
 
 .content-layout {
     display: grid;
@@ -148,44 +150,32 @@
 /* ==========================================================================
    3. HERO BANNER (Exclusivo da Home)
    ========================================================================== */
-.hero {
-    position: relative;
-    height: 550px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-    background: url('https://images.unsplash.com/photo-1521587760476-6c12a4b040da?q=80&w=2000');
-    background-size: cover;
-    background-position: center;
-    padding: 0 20px;
+
+.main-content.profile-layout-adjustment {
+  position: relative;
+  isolation: isolate;
+  width: 100%;
+  max-width: none;
+  min-height: 100vh;
+  margin: 0;
+  box-sizing: border-box;
+
+  background: url('https://images.unsplash.com/photo-1791691394860-a335c0c21050?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=NHwxMjA3fDA%3D');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
 }
 
-.hero-overlay {
-    position: absolute;
-    top: 0; left: 0; width: 100%; height: 100%;
-    background: linear-gradient(to bottom, rgba(11, 17, 30, 0.7), #0b111e);
-}
-
-.hero-content {
-    position: relative;
-    z-index: 1;
-    max-width: 800px;
-}
-
-.hero-content h1 {
-    font-family: 'Cinzel', serif;
-    font-size: 56px;
-    line-height: 1.1;
-    margin-bottom: 20px;
-}
-
-.hero-content h1 span { color: #e5a93c; }
-
-.hero-content p {
-    color: #cbd5e1;
-    font-size: 18px;
-    margin-bottom: 40px;
+.livros-background-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to bottom,
+    rgba(11, 17, 30, 0.75),
+    #0b111e
+  );
+  z-index: -1;
 }
 
 .search-box {
