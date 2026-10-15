@@ -1,0 +1,13 @@
+DB_HOST=localhost
+DB_PORT=1433
+DB_NAME=biblioteca_comunitaria
+DB_USER=sa
+DB_PASSWORD=change-me
+
+MSSQL_BACKUP_DIR=/var/opt/mssql/backup
+MSSQL_CONTAINER=
+
+UPLOADS_DIR=/srv/lumiere/backend/uploads
+BACKUP_DIR=/var/backups/lumiere
+RETENTION=7
+SCHEDULE="0 3 * * *"
