@@ -1,12 +1,14 @@
 package com.biblioteca.backend.dto;
 
-import lombok.AllArgsConstructor;
+
+import com.biblioteca.backend.enums.TipoUsuario;
+
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
 @NoArgsConstructor
-@AllArgsConstructor
+
 public class UsuarioDTO {
 
     private Long id;
@@ -14,12 +16,14 @@ public class UsuarioDTO {
     private String nomeUsuario;
     private String descricaoUsuario;
     private String fotoUsuario;
+    private TipoUsuario tipoUsuario;
 
-    public UsuarioDTO(Long id, String nomeUsuario, String descricaoUsuario, String fotoUsuario) {
+    public UsuarioDTO(Long id, String nomeUsuario, String descricaoUsuario, String fotoUsuario, TipoUsuario tipoUsuario) {
         this.id = id;
         this.usuarioId = id;
         this.nomeUsuario = nomeUsuario;
         this.descricaoUsuario = descricaoUsuario;
         this.fotoUsuario = fotoUsuario;
+        this.tipoUsuario = tipoUsuario;
     }
 }

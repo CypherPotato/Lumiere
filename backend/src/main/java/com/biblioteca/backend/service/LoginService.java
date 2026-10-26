@@ -36,7 +36,8 @@ public UsuarioDTO fazerLogin(LoginDto loginDto) {
             usuario.getId(),
             usuario.getNomeUsuario(),
             usuario.getDescricaoUsuario(),
-            usuario.getFotoUsuario()
+            usuario.getFotoUsuario(),
+            usuario.getTipoUsuario()
     );
 }
 }

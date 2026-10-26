@@ -27,7 +27,8 @@ public class CadastroService {
         usuarioSalvo.getId(),
         usuarioSalvo.getNomeUsuario(),
         usuarioSalvo.getDescricaoUsuario(),
-        usuarioSalvo.getFotoUsuario()
+        usuarioSalvo.getFotoUsuario(),
+        usuarioSalvo.getTipoUsuario()
     );
       
     }

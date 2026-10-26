@@ -62,6 +62,10 @@ export class UsuarioService {
     return this.obterIdUsuarioLogado() > 0;
   }
 
+  isAdministrador(): boolean {
+    return this.usuarioLogado()?.tipoUsuario === 'ADMIN';
+  }
+
   limparUsuarioLogado(): void {
     this.definirUsuarioLogado(null);
   }
@@ -82,6 +86,7 @@ export class UsuarioService {
           nomeUsuario: usuario.nomeUsuario,
           descricaoUsuario: usuario.descricaoUsuario,
           fotoUsuario: usuario.fotoUsuario,
+          tipoUsuario: usuario.tipoUsuario ?? this.usuarioLogado()?.tipoUsuario,
         };
         this.definirUsuarioLogado(normalizado);
       })

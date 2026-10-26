@@ -7,7 +7,7 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.NoArgsConstructor;
-import lombok.AllArgsConstructor;
+
 import org.hibernate.annotations.SQLRestriction;
 
 @Entity
@@ -16,7 +16,7 @@ import org.hibernate.annotations.SQLRestriction;
 @Getter // Substitui o @Data de forma segura para Getters
 @Setter // Substitui o @Data de forma segura para Setters
 @NoArgsConstructor  // Construtor padrão exigido pelo JPA
-@AllArgsConstructor // Construtor com todos os campos (opcional, mas útil)
+
 public class Livro {
 
     @Id

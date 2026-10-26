@@ -59,7 +59,8 @@ public class UserService {
                 usuario.getId(),
                 usuario.getNomeUsuario(),
                 usuario.getDescricaoUsuario(),
-                usuario.getFotoUsuario()
+                usuario.getFotoUsuario(),
+                usuario.getTipoUsuario()
         );
     }
 
@@ -119,7 +120,8 @@ public class UserService {
                     usuario.getId(),
                     usuario.getNomeUsuario(),
                     usuario.getDescricaoUsuario(),
-                    usuario.getFotoUsuario()
+                    usuario.getFotoUsuario(),
+                     usuario.getTipoUsuario()
             );
 
         } catch (IOException e) {

@@ -1,6 +1,7 @@
 package com.biblioteca.backend.repository;
 
 
+import com.biblioteca.backend.enums.StatusInteresse;
 import com.biblioteca.backend.model.Interesse;
 import com.biblioteca.backend.model.Usuario;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -17,6 +18,8 @@ import java.util.Optional;
 public interface InteresseRepository extends JpaRepository<Interesse, Long> {
 
     boolean existsByUsuarioInteressadoAndLivroUsuario(Usuario interessado, Usuario donoDoLivro);
+
+    long countByStatus(StatusInteresse status);
 
     @Query(value = """
             SELECT i.*

@@ -13,6 +13,9 @@ public class Interesse {
     @GeneratedValue(strategy =  GenerationType.IDENTITY)
     private long id;
 
+    public Interesse() {
+    }
+
 
 
     @ManyToOne

@@ -1,0 +1,793 @@
+<div class="admin-container">
+  <!-- Navbar Global -->
+  <nav class="navbar">
+    <div class="nav-content">
+      <div class="nav-left-brand">
+        <div class="user-avatar-nav">
+          <img
+            [src]="usuarioService.getFotoUrl(usuarioService.usuarioLogado()?.fotoUsuario, usuarioService.usuarioLogado()?.nomeUsuario)"
+            alt="Foto de Perfil"
+            [routerLink]="['/meu-perfil']"
+          >
+        </div>
+        <div class="logo">
+          <span>LUMIERE</span>
+          <span class="badge-admin-tag">ADMIN</span>
+        </div>
+      </div>
+
+      <div class="nav-links">
+        <a [routerLink]="['/home']">Home</a>
+        <a [routerLink]="['/meus-livros']">Meus Livros</a>
+        <a [routerLink]="['/interesses']">Interesses</a>
+        <a [routerLink]="['/chat']">Chats</a>
+        <a [routerLink]="['/admin']" class="active">Painel Admin</a>
+      </div>
+
+      <div class="nav-actions">
+        <button class="btn-refresh" (click)="carregarTodosDados()" [disabled]="carregando()" title="Recarregar Dados">
+          <i class="fa-solid fa-arrows-rotate" [class.fa-spin]="carregando()"></i>
+          <span class="btn-refresh-text">Atualizar</span>
+        </button>
+        <button [routerLink]="['/login']" class="btn-cta-exit">Sair</button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Mensagens / Feedback Flutuante -->
+  @if (mensagemSucesso()) {
+    <div class="alert-banner alert-success">
+      <i class="fa-solid fa-circle-check"></i>
+      <span>{{ mensagemSucesso() }}</span>
+      <button class="alert-close" (click)="limparMensagens()">&times;</button>
+    </div>
+  }
+
+  @if (mensagemErro()) {
+    <div class="alert-banner alert-danger">
+      <i class="fa-solid fa-triangle-exclamation"></i>
+      <span>{{ mensagemErro() }}</span>
+      <button class="alert-close" (click)="limparMensagens()">&times;</button>
+    </div>
+  }
+
+  <!-- Aviso de Nível de Acesso caso não seja ADMIN -->
+  @if (usuarioService.usuarioLogado() && usuarioService.usuarioLogado()?.tipoUsuario !== 'ADMIN') {
+    <div class="alert-banner alert-warning">
+      <i class="fa-solid fa-shield-halved"></i>
+      <div>
+        <strong>Aviso de Permissão:</strong> Você está conectado com um usuário do tipo <em>{{ usuarioService.usuarioLogado()?.tipoUsuario || 'COMUM' }}</em>. Ações de modificação ou exclusão exigem permissões de administrador no servidor.
+      </div>
+    </div>
+  }
+
+  <!-- Conteúdo Principal -->
+  <main class="main-content">
+    <div class="admin-wrapper">
+      
+      <!-- Cabeçalho do Painel -->
+      <header class="panel-header">
+        <div class="panel-header-titles">
+          <div class="badge-header"><i class="fa-solid fa-shield-halved"></i> Controle de Gestão</div>
+          <h1 class="cinzel-title">Painel Administrativo</h1>
+          <p class="panel-subtitle">
+            Monitore estatísticas em tempo real, gerencie o catálogo de livros e visualize os membros da comunidade.
+          </p>
+        </div>
+      </header>
+
+      <!-- Cards de Métricas / KPIs (AdminController) -->
+      <section class="stats-grid">
+        <!-- Card 1: Total de Livros -->
+        <div class="stat-card" (click)="trocarAba('livros')">
+          <div class="stat-card-header">
+            <span class="stat-label">Total de Livros</span>
+            <div class="stat-icon-wrapper gold">
+              <i class="fa-solid fa-book-bookmark"></i>
+            </div>
+          </div>
+          <div class="stat-value">{{ estatisticas().totalLivros }}</div>
+          <div class="stat-card-footer">
+            <span class="stat-detail">
+              <i class="fa-solid fa-circle-check text-green"></i> {{ totalLivrosDisponiveis() }} disponíveis para troca
+            </span>
+          </div>
+        </div>
+
+        <!-- Card 2: Total de Usuários -->
+        <div class="stat-card" (click)="trocarAba('usuarios')">
+          <div class="stat-card-header">
+            <span class="stat-label">Usuários Cadastrados</span>
+            <div class="stat-icon-wrapper blue">
+              <i class="fa-solid fa-users-gear"></i>
+            </div>
+          </div>
+          <div class="stat-value">{{ estatisticas().totalUsuario }}</div>
+          <div class="stat-card-footer">
+            <span class="stat-detail">
+              <i class="fa-solid fa-user-shield text-gold"></i> {{ totalAdmins() }} administrador(es)
+            </span>
+          </div>
+        </div>
+
+        <!-- Card 3: Total de Interesses -->
+        <div class="stat-card" (click)="trocarAba('relatorios')">
+          <div class="stat-card-header">
+            <span class="stat-label">Total de Interesses</span>
+            <div class="stat-icon-wrapper green">
+              <i class="fa-solid fa-handshake"></i>
+            </div>
+          </div>
+          <div class="stat-value">{{ estatisticas().totalInteresses }}</div>
+          <div class="stat-card-footer">
+            <span class="stat-detail">
+              <i class="fa-solid fa-arrow-trend-up text-green"></i> Conexões iniciadas
+            </span>
+          </div>
+        </div>
+
+        <!-- Card 4: Interesses Pendentes -->
+        <div class="stat-card" (click)="trocarAba('relatorios')">
+          <div class="stat-card-header">
+            <span class="stat-label">Interesses Pendentes</span>
+            <div class="stat-icon-wrapper amber">
+              <i class="fa-solid fa-clock-rotate-left"></i>
+            </div>
+          </div>
+          <div class="stat-value text-amber">{{ estatisticas().interessesPendentes }}</div>
+          <div class="stat-card-footer">
+            <span class="stat-detail">
+              <i class="fa-solid fa-hourglass-half"></i> {{ taxaInteressesPendentes() }}% do total em espera
+            </span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Abas de Navegação -->
+      <nav class="tabs-nav">
+        <button
+          class="tab-btn"
+          [class.active]="abaAtiva() === 'visao-geral'"
+          (click)="trocarAba('visao-geral')"
+        >
+          <i class="fa-solid fa-chart-pie"></i> Visão Geral
+        </button>
+
+        <button
+          class="tab-btn"
+          [class.active]="abaAtiva() === 'livros'"
+          (click)="trocarAba('livros')"
+        >
+          <i class="fa-solid fa-book"></i> Gestão de Livros
+          <span class="tab-counter">{{ livrosFiltrados().length }}</span>
+        </button>
+
+        <button
+          class="tab-btn"
+          [class.active]="abaAtiva() === 'usuarios'"
+          (click)="trocarAba('usuarios')"
+        >
+          <i class="fa-solid fa-users"></i> Gestão de Usuários
+          <span class="tab-counter">{{ usuariosFiltrados().length }}</span>
+        </button>
+
+        <button
+          class="tab-btn"
+          [class.active]="abaAtiva() === 'relatorios'"
+          (click)="trocarAba('relatorios')"
+        >
+          <i class="fa-solid fa-file-invoice"></i> Relatórios & Métricas
+        </button>
+      </nav>
+
+      <!-- CONTEÚDO DA ABA 1: VISÃO GERAL -->
+      @if (abaAtiva() === 'visao-geral') {
+        <section class="overview-section">
+          <div class="overview-grid">
+            
+            <!-- Card de Distribuição do Acervo -->
+            <div class="dashboard-panel">
+              <div class="panel-title-bar">
+                <h3><i class="fa-solid fa-book-open"></i> Saúde do Acervo de Livros</h3>
+                <button class="btn-inline-link" (click)="trocarAba('livros')">Gerenciar Acervo &rarr;</button>
+              </div>
+
+              <div class="progress-block">
+                <div class="progress-labels">
+                  <span>Livros Disponíveis</span>
+                  <span class="progress-count">{{ totalLivrosDisponiveis() }} de {{ livros().length }}</span>
+                </div>
+                <div class="progress-bar-track">
+                  <div
+                    class="progress-bar-fill fill-gold"
+                    [style.width.%]="livros().length ? (totalLivrosDisponiveis() / livros().length) * 100 : 0"
+                  ></div>
+                </div>
+              </div>
+
+              <div class="progress-block">
+                <div class="progress-labels">
+                  <span>Livros Em Negociação / Indisponíveis</span>
+                  <span class="progress-count">{{ totalLivrosIndisponiveis() }} de {{ livros().length }}</span>
+                </div>
+                <div class="progress-bar-track">
+                  <div
+                    class="progress-bar-fill fill-blue"
+                    [style.width.%]="livros().length ? (totalLivrosIndisponiveis() / livros().length) * 100 : 0"
+                  ></div>
+                </div>
+              </div>
+
+              <div class="quick-tags-container">
+                <span class="quick-tag-label">Gêneros em destaque:</span>
+                <div class="tags-row">
+                  @for (genero of generosDisponiveis(); track genero) {
+                    <span class="badge-genre">{{ genero }}</span>
+                  }
+                  @if (generosDisponiveis().length === 0) {
+                    <span class="text-muted">Nenhum gênero catalogado</span>
+                  }
+                </div>
+              </div>
+            </div>
+
+            <!-- Card de Usuários e Comunidade -->
+            <div class="dashboard-panel">
+              <div class="panel-title-bar">
+                <h3><i class="fa-solid fa-users"></i> Comunidade & Perfis</h3>
+                <button class="btn-inline-link" (click)="trocarAba('usuarios')">Ver Usuários &rarr;</button>
+              </div>
+
+              <div class="progress-block">
+                <div class="progress-labels">
+                  <span>Leitores Comuns</span>
+                  <span class="progress-count">{{ totalComuns() }}</span>
+                </div>
+                <div class="progress-bar-track">
+                  <div
+                    class="progress-bar-fill fill-blue"
+                    [style.width.%]="usuarios().length ? (totalComuns() / usuarios().length) * 100 : 0"
+                  ></div>
+                </div>
+              </div>
+
+              <div class="progress-block">
+                <div class="progress-labels">
+                  <span>Administradores</span>
+                  <span class="progress-count">{{ totalAdmins() }}</span>
+                </div>
+                <div class="progress-bar-track">
+                  <div
+                    class="progress-bar-fill fill-gold"
+                    [style.width.%]="usuarios().length ? (totalAdmins() / usuarios().length) * 100 : 0"
+                  ></div>
+                </div>
+              </div>
+
+              <div class="user-highlights">
+                <div class="highlight-item">
+                  <i class="fa-solid fa-shield text-gold"></i>
+                  <div>
+                    <strong>Moderação Ativa</strong>
+                    <p>O administrador possui permissão de remover títulos impróprios ou desativados.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- Atalhos Rápidos de Ação -->
+          <div class="quick-actions-bar">
+            <h4>Ações Rápidas de Administração:</h4>
+            <div class="action-buttons-row">
+              <button class="btn-action-tile" (click)="trocarAba('livros')">
+                <i class="fa-solid fa-list-check"></i>
+                <div>
+                  <strong>Auditar Catálogo de Livros</strong>
+                  <span>Filtrar, inspecionar detalhes ou excluir livros</span>
+                </div>
+              </button>
+
+              <button class="btn-action-tile" (click)="trocarAba('usuarios')">
+                <i class="fa-solid fa-user-gear"></i>
+                <div>
+                  <strong>Gerenciar Membros</strong>
+                  <span>Visualizar lista completa de usuários e seus níveis</span>
+                </div>
+              </button>
+
+              <button class="btn-action-tile" (click)="trocarAba('relatorios')">
+                <i class="fa-solid fa-chart-line"></i>
+                <div>
+                  <strong>Relatório de Interesses</strong>
+                  <span>Consultar volume de interesses e pendências</span>
+                </div>
+              </button>
+            </div>
+          </div>
+        </section>
+      }
+
+      <!-- CONTEÚDO DA ABA 2: GESTÃO DE LIVROS -->
+      @if (abaAtiva() === 'livros') {
+        <section class="management-section">
+          <!-- Barra de Filtros e Busca -->
+          <div class="filter-panel">
+            <div class="search-input-box">
+              <i class="fa-solid fa-magnifying-glass"></i>
+              <input
+                type="text"
+                placeholder="Buscar livro por título, autor ou ID..."
+                [ngModel]="buscaLivro()"
+                (ngModelChange)="buscaLivro.set($event)"
+              >
+            </div>
+
+            <div class="filters-row">
+              <div class="select-wrapper">
+                <label>Gênero:</label>
+                <select [ngModel]="filtroGenero()" (ngModelChange)="filtroGenero.set($event)">
+                  <option value="TODOS">Todos os Gêneros</option>
+                  @for (gen of generosDisponiveis(); track gen) {
+                    <option [value]="gen">{{ gen }}</option>
+                  }
+                </select>
+              </div>
+
+              <div class="select-wrapper">
+                <label>Interação:</label>
+                <select [ngModel]="filtroTipoInteracao()" (ngModelChange)="filtroTipoInteracao.set($event)">
+                  <option value="TODOS">Todas as Modalidades</option>
+                  @for (tipo of tiposInteracaoDisponiveis(); track tipo) {
+                    <option [value]="tipo">{{ tipo }}</option>
+                  }
+                </select>
+              </div>
+
+              <div class="select-wrapper">
+                <label>Disponibilidade:</label>
+                <select [ngModel]="filtroDisponibilidade()" (ngModelChange)="filtroDisponibilidade.set($event)">
+                  <option value="TODOS">Todas</option>
+                  <option value="DISPONIVEL">Disponível</option>
+                  <option value="INDISPONIVEL">Indisponível</option>
+                </select>
+              </div>
+
+              <button class="btn-clear-filters" (click)="limparFiltrosLivros()" title="Limpar Filtros">
+                <i class="fa-solid fa-filter-circle-xmark"></i> Limpar
+              </button>
+            </div>
+          </div>
+
+          <!-- Tabela de Livros -->
+          <div class="data-table-container">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th style="width: 70px;">ID</th>
+                  <th>Livro & Autor</th>
+                  <th>Gênero</th>
+                  <th>Modalidade</th>
+                  <th>Disponível</th>
+                  <th>Ativo</th>
+                  <th style="width: 140px; text-align: center;">Ações</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (livro of livrosFiltrados(); track livro.id) {
+                  <tr>
+                    <td class="font-mono text-muted">#{{ livro.id }}</td>
+                    <td>
+                      <div class="book-cell">
+                        <div class="book-cell-icon">
+                          <i class="fa-solid fa-book"></i>
+                        </div>
+                        <div>
+                          <div class="book-title">{{ livro.titulo }}</div>
+                          <div class="book-author">{{ livro.autor }}</div>
+                        </div>
+                      </div>
+                    </td>
+                    <td>
+                      <span class="badge-genre">{{ livro.generoLivro || 'N/A' }}</span>
+                    </td>
+                    <td>
+                      <span class="badge-interaction">{{ livro.tipoInteracao || 'N/A' }}</span>
+                    </td>
+                    <td>
+                      @if (livro.disponivel) {
+                        <span class="badge-status badge-success">
+                          <i class="fa-solid fa-check"></i> Sim
+                        </span>
+                      } @else {
+                        <span class="badge-status badge-secondary">
+                          <i class="fa-solid fa-xmark"></i> Não
+                        </span>
+                      }
+                    </td>
+                    <td>
+                      @if (livro.ativo) {
+                        <span class="status-dot dot-active" title="Ativo no sistema"></span> Ativo
+                      } @else {
+                        <span class="status-dot dot-inactive" title="Inativo"></span> Inativo
+                      }
+                    </td>
+                    <td class="actions-cell">
+                      <button
+                        class="btn-icon-action btn-view"
+                        (click)="abrirDetalhesLivro(livro)"
+                        title="Ver detalhes do livro"
+                      >
+                        <i class="fa-regular fa-eye"></i>
+                      </button>
+                      <button
+                        class="btn-icon-action btn-delete"
+                        (click)="abrirModalExcluirLivro(livro)"
+                        title="Excluir livro permanentemente"
+                      >
+                        <i class="fa-regular fa-trash-can"></i>
+                      </button>
+                    </td>
+                  </tr>
+                }
+
+                @if (livrosFiltrados().length === 0) {
+                  <tr>
+                    <td colspan="7" class="empty-state-cell">
+                      <div class="empty-state">
+                        <i class="fa-solid fa-book-open-reader"></i>
+                        <p>Nenhum livro encontrado com os filtros selecionados.</p>
+                        <button class="btn-sm-gold" (click)="limparFiltrosLivros()">Redefinir Filtros</button>
+                      </div>
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        </section>
+      }
+
+      <!-- CONTEÚDO DA ABA 3: GESTÃO DE USUÁRIOS -->
+      @if (abaAtiva() === 'usuarios') {
+        <section class="management-section">
+          <!-- Barra de Filtros de Usuários -->
+          <div class="filter-panel">
+            <div class="search-input-box">
+              <i class="fa-solid fa-magnifying-glass"></i>
+              <input
+                type="text"
+                placeholder="Buscar usuário por nome, @username ou ID..."
+                [ngModel]="buscaUsuario()"
+                (ngModelChange)="buscaUsuario.set($event)"
+              >
+            </div>
+
+            <div class="filters-row">
+              <div class="select-wrapper">
+                <label>Tipo de Usuário:</label>
+                <select [ngModel]="filtroTipoUsuario()" (ngModelChange)="filtroTipoUsuario.set($event)">
+                  <option value="TODOS">Todos os Tipos</option>
+                  <option value="ADMIN">Apenas Administradores</option>
+                  <option value="COMUM">Apenas Comuns</option>
+                </select>
+              </div>
+
+              <button class="btn-clear-filters" (click)="limparFiltrosUsuarios()" title="Limpar Filtros">
+                <i class="fa-solid fa-filter-circle-xmark"></i> Limpar
+              </button>
+            </div>
+          </div>
+
+          <!-- Grid de Cartões de Usuários -->
+          <div class="users-grid">
+            @for (usuario of usuariosFiltrados(); track usuario.id) {
+              <div class="user-card" [class.border-admin]="usuario.tipoUsuario === 'ADMIN'">
+                <div class="user-card-header">
+                  <div class="user-card-avatar">
+                    <img
+                      [src]="usuarioService.getFotoUrl(usuario.fotoUsuario, usuario.nomeUsuario)"
+                      alt="Foto de {{ usuario.nomeUsuario }}"
+                    >
+                  </div>
+                  <div class="user-card-identity">
+                    <h3 class="user-card-name">{{ usuario.nomeUsuario }}</h3>
+                    <span class="user-card-handle">&#64;{{ usuario.username }}</span>
+                  </div>
+                  <div class="user-card-badge">
+                    @if (usuario.tipoUsuario === 'ADMIN') {
+                      <span class="badge-role-admin"><i class="fa-solid fa-shield"></i> ADMIN</span>
+                    } @else {
+                      <span class="badge-role-common">COMUM</span>
+                    }
+                  </div>
+                </div>
+
+                <div class="user-card-body">
+                  <p class="user-bio">
+                    {{ usuario.descricaoUsuario || 'Sem descrição cadastrada pelo usuário.' }}
+                  </p>
+                </div>
+
+                <div class="user-card-footer">
+                  <span class="user-id-tag">ID: #{{ usuario.id }}</span>
+                  <div class="user-card-actions">
+                    <button class="btn-user-action" (click)="abrirDetalhesUsuario(usuario)">
+                      <i class="fa-regular fa-eye"></i> Detalhes
+                    </button>
+                    <a class="btn-user-action btn-profile-link" [routerLink]="['/perfil', usuario.id]">
+                      <i class="fa-solid fa-arrow-up-right-from-square"></i> Perfil
+                    </a>
+                  </div>
+                </div>
+              </div>
+            }
+
+            @if (usuariosFiltrados().length === 0) {
+              <div class="empty-state-card-full">
+                <i class="fa-solid fa-users-slash"></i>
+                <p>Nenhum usuário corresponde aos critérios pesquisados.</p>
+                <button class="btn-sm-gold" (click)="limparFiltrosUsuarios()">Redefinir Busca</button>
+              </div>
+            }
+          </div>
+        </section>
+      }
+
+      <!-- CONTEÚDO DA ABA 4: RELATÓRIOS & MÉTRICAS -->
+      @if (abaAtiva() === 'relatorios') {
+        <section class="reports-section">
+          <div class="reports-header-box">
+            <div class="reports-header-text">
+              <h2>Métricas Gerais da Comunidade</h2>
+              <p>Dados consolidados diretamente dos endpoints de relatórios do <code>AdminController</code>.</p>
+            </div>
+          </div>
+
+          <div class="metrics-cards-container">
+            <div class="metric-detail-card">
+              <div class="metric-icon gold"><i class="fa-solid fa-book"></i></div>
+              <div class="metric-info">
+                <h4>Acervo Total</h4>
+                <div class="metric-big-number">{{ estatisticas().totalLivros }}</div>
+                <p>Livros catalogados por todos os usuários do sistema.</p>
+              </div>
+            </div>
+
+            <div class="metric-detail-card">
+              <div class="metric-icon blue"><i class="fa-solid fa-users"></i></div>
+              <div class="metric-info">
+                <h4>Usuários Ativos</h4>
+                <div class="metric-big-number">{{ estatisticas().totalUsuario }}</div>
+                <p>Membros registrados participando da rede comunitária.</p>
+              </div>
+            </div>
+
+            <div class="metric-detail-card">
+              <div class="metric-icon green"><i class="fa-solid fa-handshake-angle"></i></div>
+              <div class="metric-info">
+                <h4>Interesses Registrados</h4>
+                <div class="metric-big-number">{{ estatisticas().totalInteresses }}</div>
+                <p>Total histórico de solicitações de troca, doação ou empréstimo.</p>
+              </div>
+            </div>
+
+            <div class="metric-detail-card">
+              <div class="metric-icon amber"><i class="fa-solid fa-clock"></i></div>
+              <div class="metric-info">
+                <h4>Interesses Pendentes</h4>
+                <div class="metric-big-number text-amber">{{ estatisticas().interessesPendentes }}</div>
+                <p>Interesses aguardando aceite ou resposta do proprietário do livro.</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Painel de Análise de Engajamento -->
+          <div class="report-breakdown-card">
+            <h3><i class="fa-solid fa-chart-column"></i> Indicadores de Resposta Comunitária</h3>
+            <div class="breakdown-grid">
+              <div class="breakdown-item">
+                <span class="breakdown-label">Interesses Concluídos ou Em Andamento</span>
+                <span class="breakdown-value text-green">
+                  {{ estatisticas().totalInteresses - estatisticas().interessesPendentes }}
+                </span>
+                <div class="breakdown-bar">
+                  <div
+                    class="breakdown-fill fill-green"
+                    [style.width.%]="estatisticas().totalInteresses ? ((estatisticas().totalInteresses - estatisticas().interessesPendentes) / estatisticas().totalInteresses) * 100 : 0"
+                  ></div>
+                </div>
+              </div>
+
+              <div class="breakdown-item">
+                <span class="breakdown-label">Interesses Pendentes de Aceite</span>
+                <span class="breakdown-value text-amber">
+                  {{ estatisticas().interessesPendentes }} ({{ taxaInteressesPendentes() }}%)
+                </span>
+                <div class="breakdown-bar">
+                  <div
+                    class="breakdown-fill fill-amber"
+                    [style.width.%]="taxaInteressesPendentes()"
+                  ></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+      }
+
+    </div>
+  </main>
+
+  <!-- MODAL: DETALHES DO LIVRO -->
+  @if (livroDetalhes()) {
+    <div class="modal-backdrop" (click)="fecharDetalhesLivro()">
+      <div class="modal-box" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+          <h3><i class="fa-solid fa-book"></i> Detalhes do Livro #{{ livroDetalhes()?.id }}</h3>
+          <button class="modal-close-btn" (click)="fecharDetalhesLivro()">&times;</button>
+        </div>
+
+        <div class="modal-body">
+          <div class="detail-row">
+            <span class="detail-title">Título:</span>
+            <span class="detail-content font-bold">{{ livroDetalhes()?.titulo }}</span>
+          </div>
+
+          <div class="detail-row">
+            <span class="detail-title">Autor:</span>
+            <span class="detail-content">{{ livroDetalhes()?.autor }}</span>
+          </div>
+
+          <div class="detail-row">
+            <span class="detail-title">Gênero Literário:</span>
+            <span class="detail-content">
+              <span class="badge-genre">{{ livroDetalhes()?.generoLivro }}</span>
+            </span>
+          </div>
+
+          <div class="detail-row">
+            <span class="detail-title">Modalidade:</span>
+            <span class="detail-content">
+              <span class="badge-interaction">{{ livroDetalhes()?.tipoInteracao }}</span>
+            </span>
+          </div>
+
+          <div class="detail-row">
+            <span class="detail-title">Disponibilidade:</span>
+            <span class="detail-content">
+              @if (livroDetalhes()?.disponivel) {
+                <span class="badge-status badge-success">Disponível</span>
+              } @else {
+                <span class="badge-status badge-secondary">Indisponível / Em Negociação</span>
+              }
+            </span>
+          </div>
+
+          <div class="detail-row">
+            <span class="detail-title">Status no Catálogo:</span>
+            <span class="detail-content">
+              @if (livroDetalhes()?.ativo) {
+                <span class="badge-status badge-success">Ativo</span>
+              } @else {
+                <span class="badge-status badge-secondary">Inativo</span>
+              }
+            </span>
+          </div>
+
+          <div class="detail-block">
+            <span class="detail-title">Sinopse / Descrição:</span>
+            <p class="detail-description">
+              {{ livroDetalhes()?.descricaoLivro || 'Nenhuma descrição fornecida para este livro.' }}
+            </p>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button class="btn-modal-secondary" (click)="fecharDetalhesLivro()">Fechar</button>
+          <button
+            class="btn-modal-danger"
+            (click)="fecharDetalhesLivro(); abrirModalExcluirLivro(livroDetalhes()!)"
+          >
+            <i class="fa-regular fa-trash-can"></i> Excluir Livro
+          </button>
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- MODAL: DETALHES DO USUÁRIO -->
+  @if (usuarioDetalhes()) {
+    <div class="modal-backdrop" (click)="fecharDetalhesUsuario()">
+      <div class="modal-box" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+          <h3><i class="fa-solid fa-user"></i> Informações do Usuário</h3>
+          <button class="modal-close-btn" (click)="fecharDetalhesUsuario()">&times;</button>
+        </div>
+
+        <div class="modal-body">
+          <div class="user-modal-profile">
+            <div class="user-modal-avatar">
+              <img
+                [src]="usuarioService.getFotoUrl(usuarioDetalhes()?.fotoUsuario, usuarioDetalhes()?.nomeUsuario)"
+                alt="Foto"
+              >
+            </div>
+            <div class="user-modal-titles">
+              <h4>{{ usuarioDetalhes()?.nomeUsuario }}</h4>
+              <span class="user-modal-handle">&#64;{{ usuarioDetalhes()?.username }}</span>
+              <div class="user-modal-role">
+                @if (usuarioDetalhes()?.tipoUsuario === 'ADMIN') {
+                  <span class="badge-role-admin"><i class="fa-solid fa-shield"></i> Administrador</span>
+                } @else {
+                  <span class="badge-role-common">Membro Comum</span>
+                }
+              </div>
+            </div>
+          </div>
+
+          <hr class="modal-divider">
+
+          <div class="detail-row">
+            <span class="detail-title">ID do Usuário:</span>
+            <span class="detail-content font-mono">#{{ usuarioDetalhes()?.id }}</span>
+          </div>
+
+          <div class="detail-block">
+            <span class="detail-title">Biografia / Descrição:</span>
+            <p class="detail-description">
+              {{ usuarioDetalhes()?.descricaoUsuario || 'Nenhuma biografia informada por este membro.' }}
+            </p>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button class="btn-modal-secondary" (click)="fecharDetalhesUsuario()">Fechar</button>
+          <a
+            class="btn-modal-primary"
+            [routerLink]="['/perfil', usuarioDetalhes()?.id]"
+            (click)="fecharDetalhesUsuario()"
+          >
+            <i class="fa-solid fa-arrow-up-right-from-square"></i> Ver Perfil Completo
+          </a>
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- MODAL: CONFIRMAÇÃO DE EXCLUSÃO DE LIVRO -->
+  @if (livroParaExcluir()) {
+    <div class="modal-backdrop" (click)="cancelarExclusaoLivro()">
+      <div class="modal-box modal-box-danger" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+          <h3 class="text-danger"><i class="fa-solid fa-triangle-exclamation"></i> Confirmar Exclusão</h3>
+          <button class="modal-close-btn" (click)="cancelarExclusaoLivro()">&times;</button>
+        </div>
+
+        <div class="modal-body">
+          <p>
+            Você tem certeza que deseja excluir o livro <strong>"{{ livroParaExcluir()?.titulo }}"</strong> (ID #{{ livroParaExcluir()?.id }})?
+          </p>
+          <div class="alert-box-danger-inline">
+            <i class="fa-solid fa-circle-info"></i>
+            Esta ação é irreversível e o livro será removido permanentemente de todo o catálogo da comunidade.
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button class="btn-modal-secondary" (click)="cancelarExclusaoLivro()" [disabled]="excluindo()">
+            Cancelar
+          </button>
+          <button class="btn-modal-danger" (click)="confirmarExclusaoLivro()" [disabled]="excluindo()">
+            @if (excluindo()) {
+              <i class="fa-solid fa-circle-notch fa-spin"></i> Excluindo...
+            } @else {
+              <i class="fa-regular fa-trash-can"></i> Confirmar Exclusão
+            }
+          </button>
+        </div>
+      </div>
+    </div>
+  }
+</div>

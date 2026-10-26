@@ -5,7 +5,7 @@
 :on error exit
 SET NOCOUNT ON;
 
-DECLARE @caminho NVARCHAR(4000) = CONCAT(CAST(SERVERPROPERTY('InstanceDefaultBackupPath') AS NVARCHAR(4000)), N'\', N'$(ARQUIVO)');
+DECLARE @caminho NVARCHAR(4000) = CONCAT CAST(SERVERPROPERTY('InstanceDefaultBackupPath') AS NVARCHAR(4000)), N'\', N'$(ARQUIVO)');
 
 BACKUP DATABASE [$(DB)]
 TO DISK = @caminho
