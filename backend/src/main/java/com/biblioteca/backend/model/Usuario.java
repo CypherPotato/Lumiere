@@ -3,6 +3,8 @@ package com.biblioteca.backend.model;
 import jakarta.persistence.*;
 import lombok.Data;
 
+import java.time.LocalDateTime;
+
 
 @Entity
 @Table(name = "usuarios")
@@ -18,5 +20,7 @@ public class Usuario {
     private String descricaoUsuario;
 
     private String fotoUsuario;
+    private Boolean administrador;
+    private LocalDateTime dataCadastro;
 
 }

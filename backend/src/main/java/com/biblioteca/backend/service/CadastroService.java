@@ -8,6 +8,8 @@ import com.biblioteca.backend.dto.UsuarioDTO;
 import com.biblioteca.backend.model.Usuario;
 import com.biblioteca.backend.repository.UserRepository;
 
+import java.time.LocalDateTime;
+
 @Service 
 public class CadastroService {
     
@@ -29,6 +31,7 @@ public class CadastroService {
         usuario.setUsername(dto.getUsername());
         usuario.setSenha(dto.getSenha());
         usuario.setNomeUsuario(dto.getNomeUsuario());
+        usuario.setDataCadastro(LocalDateTime.now());
 
          Usuario usuarioSalvo = userRepository.save(usuario);
 

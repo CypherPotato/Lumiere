@@ -1,0 +1,273 @@
+<div class="admin">
+  <nav class="navbar">
+    <div class="nav-content">
+      <div class="nav-brand">
+        <a routerLink="/home" class="logo">LUMIERE</a>
+      </div>
+      <div class="nav-links">
+        <a routerLink="/home">Home</a>
+        <a routerLink="/meus-livros">Meus Livros</a>
+        <a routerLink="/interesses">Interesses</a>
+        <a routerLink="/chat">Chats</a>
+        <a routerLink="/admin" class="active">Admin</a>
+      </div>
+      <button type="button" class="btn-sair" (click)="sair()">Sair</button>
+    </div>
+  </nav>
+
+  @if (!usuarioService.estaAutenticado()) {
+    <section class="bloqueio">
+      <h1>Painel restrito</h1>
+      <p>Entre com uma conta de administrador para ver as métricas e a gestão.</p>
+      <a routerLink="/login">Ir para o login</a>
+    </section>
+  } @else if (!usuarioService.usuarioLogado()?.administrador) {
+    <section class="bloqueio">
+      <h1>Esta conta não administra a plataforma</h1>
+      <p>Se ainda não existe um administrador, o próximo login bem-sucedido assume esse papel. Saia e entre de novo.</p>
+      <button type="button" (click)="sair()">Sair e entrar novamente</button>
+    </section>
+  } @else {
+    <main>
+      <header class="topo">
+        <div>
+          <p class="olho">Administração</p>
+          <h1>Painel</h1>
+        </div>
+        <div class="periodos" aria-label="Período dos novos usuários">
+          <button type="button" [class.ativo]="horas === 24" (click)="selecionarPeriodo(24)">24 horas</button>
+          <button type="button" [class.ativo]="horas === 168" (click)="selecionarPeriodo(168)">7 dias</button>
+          <button type="button" [class.ativo]="horas === 720" (click)="selecionarPeriodo(720)">30 dias</button>
+        </div>
+      </header>
+
+      @if (erro && !modal) {
+        <p class="alerta" role="alert">{{ erro }}</p>
+      }
+
+      @if (carregando && !metricas()) {
+        <p class="estado">Carregando métricas...</p>
+      }
+
+      <section class="metricas" aria-label="Métricas">
+        <button type="button" class="metrica" [class.ativa]="painel === 'pessoas' && !somenteTrocas" (click)="abrirPainel('pessoas')">
+          <span>Total de usuários</span>
+          <strong>{{ metricas()?.totalUsuarios ?? '—' }}</strong>
+        </button>
+        <button type="button" class="metrica" [class.ativa]="painel === 'pessoas' && !somenteTrocas" (click)="abrirPainel('pessoas')">
+          <span>Novos usuários</span>
+          <strong>{{ metricas()?.novosUsuarios ?? '—' }}</strong>
+          <small>{{ horas === 24 ? 'nas últimas 24 h' : horas === 168 ? 'nos últimos 7 dias' : 'nos últimos 30 dias' }}</small>
+        </button>
+        <button type="button" class="metrica" (click)="horaSelecionada = horaSelecionada === -1 ? 23 : -1">
+          <span>Logins em 24 h</span>
+          <strong>{{ metricas()?.logins24h ?? '—' }}</strong>
+          <small>soma das horas abaixo</small>
+        </button>
+        <button type="button" class="metrica" [class.ativa]="painel === 'livros' && !somenteTrocas" (click)="abrirPainel('livros')">
+          <span>Total de livros</span>
+          <strong>{{ metricas()?.totalLivros ?? '—' }}</strong>
+          <small>{{ metricas()?.livrosDisponiveis ?? 0 }} disponíveis</small>
+        </button>
+        <button type="button" class="metrica" [class.ativa]="somenteTrocas" (click)="abrirPainel('livros', true)">
+          <span>Volume de trocas</span>
+          <strong>{{ metricas()?.volumeTrocas ?? '—' }}</strong>
+          <small>aceitas</small>
+        </button>
+      </section>
+
+      <section class="grafico" aria-label="Logins por hora">
+        <div class="grafico-topo">
+          <h2>Logins por hora</h2>
+          @if (pontoSelecionado(); as ponto) {
+            <p>{{ ponto.hora }} · {{ ponto.total }} {{ ponto.total === 1 ? 'login' : 'logins' }}</p>
+          } @else {
+            <p>Selecione uma hora</p>
+          }
+        </div>
+        <div class="barras">
+          @for (ponto of metricas()?.loginsPorHora ?? []; track $index; let indice = $index) {
+            <button
+              type="button"
+              class="barra"
+              [class.ativa]="horaSelecionada === indice"
+              [attr.aria-label]="ponto.hora + ', ' + ponto.total + ' logins'"
+              (click)="selecionarHora(indice)">
+              <span [style.height.%]="altura(ponto.total)"></span>
+            </button>
+          }
+        </div>
+      </section>
+
+      <section class="gestao">
+        <div class="gestao-topo">
+          <div class="sessoes">
+            <button type="button" [class.ativa]="painel === 'pessoas'" (click)="abrirPainel('pessoas')">Pessoas</button>
+            <button type="button" [class.ativa]="painel === 'livros'" (click)="abrirPainel('livros')">Livros</button>
+          </div>
+          @if (painel === 'pessoas') {
+            <button type="button" class="criar" (click)="abrirCriarPessoa()">Nova pessoa</button>
+          } @else {
+            <button type="button" class="criar" (click)="abrirCriarLivro()">Novo livro</button>
+          }
+        </div>
+
+        <label class="busca">
+          <input
+            type="search"
+            [(ngModel)]="busca"
+            aria-label="Buscar"
+            [placeholder]="painel === 'pessoas' ? 'Buscar por nome ou username' : 'Buscar por título, autor ou dono'">
+        </label>
+        @if (somenteTrocas) {
+          <button type="button" class="limpar" (click)="abrirPainel('livros')">Ver todos os livros</button>
+        }
+
+        @if (painel === 'pessoas') {
+          <ul class="lista">
+            @for (pessoa of pessoasVisiveis(); track pessoa.id) {
+              <li>
+                <div>
+                  <strong>{{ pessoa.nomeUsuario }}</strong>
+                  <span>@{{ pessoa.username }} · {{ pessoa.administrador ? 'Administrador' : 'Leitor' }}</span>
+                  <span>{{ pessoa.dataCadastro ? (pessoa.dataCadastro | date:'dd/MM/yyyy') : 'Cadastro anterior' }}</span>
+                </div>
+                <button type="button" class="acao" (click)="abrirEditarPessoa(pessoa)" [disabled]="ocupado">Editar</button>
+              </li>
+            } @empty {
+              <li class="vazio">Nenhuma pessoa encontrada.</li>
+            }
+          </ul>
+        } @else {
+          <ul class="lista">
+            @for (livro of livrosVisiveis(); track livro.id) {
+              <li>
+                <div>
+                  <strong>{{ livro.titulo }}</strong>
+                  <span>{{ livro.autor }} · {{ genero(livro.generoLivro) }} · {{ modalidade(livro.tipoInteracao) }}</span>
+                  <span>{{ livro.nomeUsuario || 'Sem dono' }} · {{ situacao(livro) }}</span>
+                </div>
+                <div class="acoes">
+                  @if (livro.ativo && livro.disponivel) {
+                    <button type="button" class="acao" (click)="suspender(livro)" [disabled]="ocupado">Suspender</button>
+                  }
+                  @if (livro.ativo && !livro.disponivel) {
+                    <button type="button" class="acao" (click)="reativar(livro)" [disabled]="ocupado">Reativar</button>
+                  }
+                  @if (livro.ativo) {
+                    <button type="button" class="acao perigo" (click)="remover(livro)" [disabled]="ocupado">Remover</button>
+                  } @else {
+                    <button type="button" class="acao" (click)="restaurar(livro)" [disabled]="ocupado">Restaurar</button>
+                  }
+                </div>
+              </li>
+            } @empty {
+              <li class="vazio">Nenhum livro encontrado.</li>
+            }
+          </ul>
+        }
+      </section>
+    </main>
+  }
+
+  @if (modal === 'pessoa') {
+    <div class="overlay" (click)="fecharModal()">
+      <form class="modal" (click)="$event.stopPropagation()" (ngSubmit)="salvarPessoa()">
+        <header>
+          <div>
+            <h2>{{ pessoaId ? 'Editar pessoa' : 'Nova pessoa' }}</h2>
+            <p>Os dados ficam separados por sessão.</p>
+          </div>
+          <button type="button" class="fechar" (click)="fecharModal()" aria-label="Fechar">×</button>
+        </header>
+        <div class="abas" role="tablist">
+          <button type="button" role="tab" [class.ativa]="abaPessoa === 'perfil'" [attr.aria-selected]="abaPessoa === 'perfil'" (click)="abaPessoa = 'perfil'">Perfil</button>
+          <button type="button" role="tab" [class.ativa]="abaPessoa === 'acesso'" [attr.aria-selected]="abaPessoa === 'acesso'" (click)="abaPessoa = 'acesso'">Acesso</button>
+        </div>
+        @if (abaPessoa === 'perfil') {
+          <label>Nome<input [(ngModel)]="pessoaForm.nomeUsuario" name="nome" required></label>
+          <label>Username<input [(ngModel)]="pessoaForm.username" name="username" required></label>
+          <label>Descrição<textarea [(ngModel)]="pessoaForm.descricaoUsuario" name="descricao" rows="4"></textarea></label>
+        } @else {
+          <label>
+            Senha
+            <input [(ngModel)]="pessoaForm.senha" name="senha" type="password" [required]="!pessoaId" [placeholder]="pessoaId ? 'Em branco mantém a atual' : 'Mínimo de 3 dígitos'">
+          </label>
+          <label class="check">
+            <input type="checkbox" [(ngModel)]="pessoaForm.administrador" name="administrador">
+            Administrador
+          </label>
+        }
+        @if (erro) {
+          <p class="alerta" role="alert">{{ erro }}</p>
+        }
+        <footer>
+          <button type="button" class="cancelar" (click)="fecharModal()">Cancelar</button>
+          <button type="submit" class="criar" [disabled]="ocupado">{{ pessoaId ? 'Salvar' : 'Criar pessoa' }}</button>
+        </footer>
+      </form>
+    </div>
+  }
+
+  @if (modal === 'livro') {
+    <div class="overlay" (click)="fecharModal()">
+      <form class="modal" (click)="$event.stopPropagation()" (ngSubmit)="salvarLivro()">
+        <header>
+          <div>
+            <h2>Novo livro</h2>
+            <p>A obra e a classificação ficam em sessões diferentes.</p>
+          </div>
+          <button type="button" class="fechar" (click)="fecharModal()" aria-label="Fechar">×</button>
+        </header>
+        <div class="abas" role="tablist">
+          <button type="button" role="tab" [class.ativa]="abaLivro === 'obra'" [attr.aria-selected]="abaLivro === 'obra'" (click)="abaLivro = 'obra'">Obra</button>
+          <button type="button" role="tab" [class.ativa]="abaLivro === 'classificacao'" [attr.aria-selected]="abaLivro === 'classificacao'" (click)="abaLivro = 'classificacao'">Classificação</button>
+        </div>
+        @if (abaLivro === 'obra') {
+          <label>Título<input [(ngModel)]="livroForm.titulo" name="titulo" required></label>
+          <label>Autor<input [(ngModel)]="livroForm.autor" name="autor" required></label>
+          <label>Descrição<textarea [(ngModel)]="livroForm.descricaoLivro" name="descricaoLivro" rows="4"></textarea></label>
+        } @else {
+          <label>
+            Gênero
+            <select [(ngModel)]="livroForm.generoLivro" name="genero" required>
+              <option value="">Selecione</option>
+              <option value="Romance">Romance</option>
+              <option value="Fantasia">Fantasia</option>
+              <option value="Ficcao">Ficção</option>
+              <option value="Cientifica">Científica</option>
+              <option value="Suspense">Suspense</option>
+              <option value="Policial">Policial</option>
+              <option value="Terror">Terror</option>
+              <option value="Historica">Histórica</option>
+            </select>
+          </label>
+          <label>
+            Modalidade
+            <select [(ngModel)]="livroForm.tipoInteracao" name="tipo" required>
+              <option value="">Selecione</option>
+              <option value="DOACAO">Doação</option>
+              <option value="TROCA">Troca</option>
+            </select>
+          </label>
+          <label>
+            Dono
+            <select [(ngModel)]="livroForm.usuarioId" name="dono" required>
+              <option [ngValue]="null">Selecione</option>
+              @for (pessoa of pessoas(); track pessoa.id) {
+                <option [ngValue]="pessoa.id">{{ pessoa.nomeUsuario }}</option>
+              }
+            </select>
+          </label>
+        }
+        @if (erro) {
+          <p class="alerta" role="alert">{{ erro }}</p>
+        }
+        <footer>
+          <button type="button" class="cancelar" (click)="fecharModal()">Cancelar</button>
+          <button type="submit" class="criar" [disabled]="ocupado">Criar livro</button>
+        </footer>
+      </form>
+    </div>
+  }
+</div>

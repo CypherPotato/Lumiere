@@ -5,4 +5,5 @@ export interface DadosUsuario {
   username?: string;
   descricaoUsuario: string;
   fotoUsuario?: string | null;
+  administrador?: boolean;
 }

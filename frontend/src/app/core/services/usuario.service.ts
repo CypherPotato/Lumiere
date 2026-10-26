@@ -82,6 +82,7 @@ export class UsuarioService {
           nomeUsuario: usuario.nomeUsuario,
           descricaoUsuario: usuario.descricaoUsuario,
           fotoUsuario: usuario.fotoUsuario,
+          administrador: usuario.administrador ?? this.usuarioLogado()?.administrador,
         };
         this.definirUsuarioLogado(normalizado);
       })
@@ -105,6 +106,7 @@ export class UsuarioService {
           nomeUsuario: usuarioAtualizado.nomeUsuario,
           descricaoUsuario: usuarioAtualizado.descricaoUsuario,
           fotoUsuario: fotoAtual,
+          administrador: usuarioAtualizado.administrador ?? this.usuarioLogado()?.administrador,
         };
         this.definirUsuarioLogado(normalizado);
       })
@@ -130,6 +132,7 @@ export class UsuarioService {
           nomeUsuario: usuarioAtualizado.nomeUsuario,
           descricaoUsuario: usuarioAtualizado.descricaoUsuario,
           fotoUsuario: usuarioAtualizado.fotoUsuario,
+          administrador: usuarioAtualizado.administrador ?? this.usuarioLogado()?.administrador,
         };
         this.definirUsuarioLogado(normalizado);
       })

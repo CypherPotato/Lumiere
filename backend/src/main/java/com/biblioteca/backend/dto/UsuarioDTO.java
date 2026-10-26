@@ -14,6 +14,7 @@ public class UsuarioDTO {
     private String nomeUsuario;
     private String descricaoUsuario;
     private String fotoUsuario;
+    private Boolean administrador;
 
     public UsuarioDTO(Long id, String nomeUsuario, String descricaoUsuario, String fotoUsuario) {
         this.id = id;

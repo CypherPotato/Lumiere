@@ -20,6 +20,9 @@
         <a routerLink="/meus-livros">Meus Livros</a>
         <a routerLink="/interesses">Interesses</a>
         <a [routerLink]="['/chats ']" class="active">Chats</a>
+        @if (usuarioService.usuarioLogado()?.administrador) {
+          <a routerLink="/admin">Admin</a>
+        }
       </div>
 
       <div class="nav-actions">

@@ -12,6 +12,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Service
@@ -21,6 +22,9 @@ public class UserService {
     private UserRepository userRepository;
 
     public Usuario salvar(Usuario usuario) {
+        if (usuario.getDataCadastro() == null) {
+            usuario.setDataCadastro(LocalDateTime.now());
+        }
         return userRepository.save(usuario);
     }
 
@@ -28,12 +32,7 @@ public class UserService {
         Usuario usuario = userRepository.findById(usuarioId)
                 .orElseThrow(() -> new RuntimeException("Usuário não encontrado!"));
 
-        return new UsuarioDTO(
-                usuario.getId(),
-                usuario.getNomeUsuario(),
-                usuario.getDescricaoUsuario(),
-                usuario.getFotoUsuario()
-        );
+        return dadosPublicos(usuario);
     }
 
     public Usuario atualizarUsuario(long id, Usuario usuarioAtualizado) {
@@ -88,15 +87,21 @@ public class UserService {
             usuario.setFotoUsuario(nomeArquivo);
             userRepository.save(usuario);
 
-            return new UsuarioDTO(
-                    usuario.getId(),
-                    usuario.getNomeUsuario(),
-                    usuario.getDescricaoUsuario(),
-                    usuario.getFotoUsuario()
-            );
+            return dadosPublicos(usuario);
 
         } catch (IOException e) {
             throw new RuntimeException("Erro ao salvar a foto do usuário", e);
         }
+    }
+
+    private UsuarioDTO dadosPublicos(Usuario usuario) {
+        UsuarioDTO resposta = new UsuarioDTO(
+                usuario.getId(),
+                usuario.getNomeUsuario(),
+                usuario.getDescricaoUsuario(),
+                usuario.getFotoUsuario()
+        );
+        resposta.setAdministrador(Boolean.TRUE.equals(usuario.getAdministrador()));
+        return resposta;
     }
 }
